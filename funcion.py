@@ -54,7 +54,7 @@ from openpyxl import Workbook
 
 ## FUNCTIONS
 
-def scraper_contraloria( anios, tipo_servicio, regiones, grupo ):
+def scraper_contraloria( anios, tipo_servicio, regiones, grupo_ejecucion ):
 
     try:
         service = Service( ChromeDriverManager().install( ) )
@@ -318,7 +318,7 @@ def scraper_contraloria( anios, tipo_servicio, regiones, grupo ):
                                 modalidad = unidecode.unidecode( modalidad )
                                 if modalidad == mod_de_serv:
                                     try:
-                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
+                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo_ejecucion, modalidad, num_d_inf )
                                         os.makedirs( folder_path, exist_ok = True )
 
                                         informe_path = os.path.join( folder_path, f'{ num_d_inf }-informe.pdf' )
@@ -348,7 +348,7 @@ def scraper_contraloria( anios, tipo_servicio, regiones, grupo ):
                                 modalidad = unidecode.unidecode( modalidad )                                
                                 if modalidad == mod_de_serv:
                                     try:
-                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
+                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo_ejecucion, modalidad, num_d_inf )
                                         os.makedirs( folder_path, exist_ok = True )
 
                                         informe_path = os.path.join( folder_path, f'{ num_d_inf }-informe.pdf' )
@@ -378,7 +378,7 @@ def scraper_contraloria( anios, tipo_servicio, regiones, grupo ):
                                 modalidad = unidecode.unidecode( modalidad )                                
                                 if modalidad == mod_de_serv:
                                     try:
-                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
+                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo_ejecucion, modalidad, num_d_inf )
                                         os.makedirs( folder_path, exist_ok = True )
 
                                         informe_path = os.path.join( folder_path, f'{ num_d_inf }-informe.pdf' )
@@ -423,7 +423,6 @@ def scraper_contraloria( anios, tipo_servicio, regiones, grupo ):
         try: 
             
             tipo_servicio = tipo_servicio.replace( ' ', '_' ).replace( '"', '' )
-            grupo_ejecucion = grupo_ejecucion.replace( ' ', '_' )
                 
             datos_extraidos = {
             'Region': regions,
