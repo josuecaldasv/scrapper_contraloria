@@ -1,3 +1,10 @@
+
+'''ESTE CODIGO FUE ESCRITO EN " Jupyter Notebook "'''
+"""
+@author: Claudia Vivas
+@author: Josué Caldas
+"""
+
 ## LIBRARIES
 # ---
 
@@ -45,10 +52,7 @@ import urllib.request
 import requests
 from openpyxl import Workbook
 
-
-
-## FUNCTION
-# ---------
+## FUNCTIONS
 
 def scraper_contraloria( anios, tipo_servicio, grupo ):
 
@@ -61,7 +65,28 @@ def scraper_contraloria( anios, tipo_servicio, grupo ):
         driver.get( url )
         
         wait = WebDriverWait( driver, 60 )
-              
+        
+        # Seleccionar regiones
+        # try:
+            # time.sleep( 2 )
+            # busqueda_region = wait.until( EC.element_to_be_clickable( ( By.XPATH, '//*[@id="aRegion"]' ) ) ).\
+                            # click()
+
+            # tabla_regiones = driver.find_element( By.XPATH, '//*[@id="lblmenuregion"]' )
+
+            # try: 
+                # for region in regiones:
+                    # time.sleep(2)
+                    # tabla_regiones.location_once_scrolled_into_view
+                    # tabla_regiones.find_element( By.XPATH, f".//label[contains(., { region })]" ).click()
+                    # print( region )
+            
+            # except:
+                # ( '\nno region\n' )
+                
+        # except:
+            # print( '\nregiones no encontradas\n' )
+        
         # Seleccionar años: 
         try:    
             time.sleep( 2 )
@@ -119,12 +144,66 @@ def scraper_contraloria( anios, tipo_servicio, grupo ):
             
         except:
             print( '\ntipos no encontrados\n' )       
-                        
+            
+            
+            # Seleccionar Modalidad de Servicio
+        # try:
+            # time.sleep( 2 )
+            # busqueda_modalidad = wait.until( EC.element_to_be_clickable( ( By.XPATH, '//*[@id="aModalidad"]' ) ) ).\
+                                 # click()
+
+            # Tabla donde estan las modalidades
+            # tabla_modalidades = driver.find_element( By.XPATH, '//*[@id="lblmenumodalidad"]' )
+
+            # Condicional según el tipo de servicio
+            # modalidades_posterior = [ '"ACCION OFICIO POSTERIOR"', '"AUDITORIA CUMPLIMIENTO"', '"AUDITORIA DESEMPEÑO"', 
+                                      # '"AUDITORIA FINANCIERA"',  '"SERVICIO DE CONTROL ESPECÍFICO A HECHOS CON PRESUNTA IRREGULARIDAD"' ]
+
+            # modalidades_simultaneo = [ '"ACCIÓN SIMULTÁNEA"', '"CONTROL CONCURRENTE"', '"ORIENTACIÓN DE OFICIO"',
+                                       # '"REPORTE DE AVANCE"', '"VISITA DE CONTROL"', '"VISITA PREVENTIVA"' ]
+
+            # modalidades_previo = [ '"ASOCIACIÓN PÚBLICO PRIVADA"', '"ENDEUDAMIENTO INTERNO O EXTERNO"', '"OBRAS POR IMPUESTOS"',
+                                   # '"PRESTACIONES DE ADICIONALES DE OBRA"', '"PRESTACIONES DE ADICIONALES DE SUPERVISIÓN"' ]
+            
+            
+            
+            # if tipo_servicio == '"SERVICIO CONTROL POSTERIOR"':
+                # modalidades = modalidades_posterior
+                
+            # if tipo_servicio == '"SERVICIO CONTROL SIMULTANEO"':
+                # modalidades = modalidades_simultaneo
+                
+            # if tipo_servicio == '"SERVICIO CONTROL PREVIO"':
+                # modalidades = modalidades_previo
+                
+            # for m in modalidades:
+                # time.sleep( 2 )
+                # tabla_modalidades.location_once_scrolled_into_view
+                # tabla_modalidades.find_element( By.XPATH, f".//label[contains(., { m })]" ).\
+                                  # click()  
+                # print( m )
+        # except:
+            # print( '\nmodalidades no encontrados\n' )  
+            
        # Creamos Carpeta 'scraper_contraloria'.
         try:
             os.mkdir('scraper_contraloria')
         except:
             pass
+            
+        # Limpiamos las regiones ingresadas para poder transcribirlas en las carpetas que se crearan despues.
+        # regiones_modificadas = []
+        # try:
+            # for region in regiones:
+                # region = region.replace( ' ', '_' )
+                # region = region.replace( '"', '' )
+                # if '.' in region:
+                    # region = region.replace( '.', '' )
+                # regiones_modificadas.append( region )
+            # print( regiones_modificadas )
+            
+        # except:
+            # print( '\nno regiones modificadas\n' )   
         
         
         # Creamos listas vacias para trabajar los loops.
@@ -161,7 +240,7 @@ def scraper_contraloria( anios, tipo_servicio, grupo ):
                 print( f"Procesando página { i }..." )
                 
                 # Esperar hasta que la página se haya cargado completamente
-                wait.until(EC.presence_of_element_located( ( By.XPATH, '//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[1]/td[1]' ) ) )
+                wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[1]/td[1]')))
 
                 # Obtener el número de filas en la página actual
                 n_filas = len( driver.find_elements( By.XPATH, '//*[@id="tablaResultadosUltimosInformes"]/tbody/tr' ) )
@@ -170,7 +249,7 @@ def scraper_contraloria( anios, tipo_servicio, grupo ):
                 for x in range( 1, n_filas + 1 ):
 
                     # Esperar hasta que el elemento específico se haya cargado completamente
-                    wait.until(EC.presence_of_element_located( ( By.XPATH, f'//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[{ x }]/td[1]') ) )
+                    wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[{x}]/td[1]')))
                     
                     reg           = [ driver.find_element( By.XPATH, f'//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[{ x }]/td[1]' ).text ]   
                     mod_de_serv2  = [ driver.find_element( By.XPATH, f'//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[{ x }]/td[2]' ).text ]
@@ -214,9 +293,9 @@ def scraper_contraloria( anios, tipo_servicio, grupo ):
                     
                     # Modificar los nobmres y números para quitar elementos extraños
                     try: 
-                        mod_de_serv = mod_de_serv.strip().replace( ' ', '_' ).replace( '"', '' )
+                        mod_de_serv = mod_de_serv.strip().replace(' ', '_').replace('"', '')
                         mod_de_serv = unidecode.unidecode( mod_de_serv )
-                        num_d_inf   = num_d_inf.strip().replace( '/', '_' ).replace( '\\', '_' )
+                        num_d_inf   = num_d_inf.strip().replace('/', '_').replace('\\', '_')
                         # print( f"Modalidad de servicio: { mod_de_serv }" )
                         # print( f"Número de Informe: { num_d_inf }" )
                         
@@ -346,7 +425,7 @@ def scraper_contraloria( anios, tipo_servicio, grupo ):
                     print( "NO SE AVANZA A LA SIGUIENTE PÁGINA" )           
                   
         except:
-            print( '0 documentos encontrados' )    
+            print('0 documentos encontrados')    
             
         # Guardar datos extraídos en un archivo Excel
         try: 
