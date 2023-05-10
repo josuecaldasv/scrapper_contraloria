@@ -54,7 +54,7 @@ from openpyxl import Workbook
 
 ## FUNCTIONS
 
-def scraper_contraloria( anios, tipo_servicio, regiones, grupo_ejecucion ):
+def scraper_contraloria( anios, tipo_servicio, grupo_ejecucion ):
 
     try:
         service = Service( ChromeDriverManager().install( ) )
@@ -65,27 +65,6 @@ def scraper_contraloria( anios, tipo_servicio, regiones, grupo_ejecucion ):
         driver.get( url )
         
         wait = WebDriverWait( driver, 60 )
-        
-        # Seleccionar regiones
-        try:
-            time.sleep( 2 )
-            busqueda_region = wait.until( EC.element_to_be_clickable( ( By.XPATH, '//*[@id="aRegion"]' ) ) ).\
-                            click()
-
-            tabla_regiones = driver.find_element( By.XPATH, '//*[@id="lblmenuregion"]' )
-
-            try: 
-                for region in regiones:
-                    time.sleep(2)
-                    tabla_regiones.location_once_scrolled_into_view
-                    tabla_regiones.find_element( By.XPATH, f".//label[contains(., { region })]" ).click()
-                    print( region )
-            
-            except:
-                ( '\nno region\n' )
-                
-        except:
-            print( '\nregiones no encontradas\n' )
         
         # Seleccionar años: 
         try:    
@@ -146,65 +125,13 @@ def scraper_contraloria( anios, tipo_servicio, regiones, grupo_ejecucion ):
             print( '\ntipos no encontrados\n' )       
             
             
-            # Seleccionar Modalidad de Servicio
-        try:
-            time.sleep( 2 )
-            busqueda_modalidad = wait.until( EC.element_to_be_clickable( ( By.XPATH, '//*[@id="aModalidad"]' ) ) ).\
-                                 click()
 
-            # Tabla donde estan las modalidades
-            tabla_modalidades = driver.find_element( By.XPATH, '//*[@id="lblmenumodalidad"]' )
-
-            # Condicional según el tipo de servicio
-            modalidades_posterior = [ '"ACCION OFICIO POSTERIOR"', '"AUDITORIA CUMPLIMIENTO"', '"AUDITORIA DESEMPEÑO"', 
-                                      '"AUDITORIA FINANCIERA"',  '"SERVICIO DE CONTROL ESPECÍFICO A HECHOS CON PRESUNTA IRREGULARIDAD"' ]
-
-            modalidades_simultaneo = [ '"ACCIÓN SIMULTÁNEA"', '"CONTROL CONCURRENTE"', '"ORIENTACIÓN DE OFICIO"',
-                                       '"REPORTE DE AVANCE"', '"VISITA DE CONTROL"', '"VISITA PREVENTIVA"' ]
-
-            modalidades_previo = [ '"ASOCIACIÓN PÚBLICO PRIVADA"', '"ENDEUDAMIENTO INTERNO O EXTERNO"', '"OBRAS POR IMPUESTOS"',
-                                   '"PRESTACIONES DE ADICIONALES DE OBRA"', '"PRESTACIONES DE ADICIONALES DE SUPERVISIÓN"' ]
-            
-            
-            
-            if tipo_servicio == '"SERVICIO CONTROL POSTERIOR"':
-                modalidades = modalidades_posterior
-                
-            if tipo_servicio == '"SERVICIO CONTROL SIMULTANEO"':
-                modalidades = modalidades_simultaneo
-                
-            if tipo_servicio == '"SERVICIO CONTROL PREVIO"':
-                modalidades = modalidades_previo
-                
-            for m in modalidades:
-                time.sleep( 2 )
-                tabla_modalidades.location_once_scrolled_into_view
-                tabla_modalidades.find_element( By.XPATH, f".//label[contains(., { m })]" ).\
-                                  click()  
-                print( m )
-        except:
-            print( '\nmodalidades no encontrados\n' )  
             
        # Creamos Carpeta 'scraper_contraloria'.
         try:
             os.mkdir('scraper_contraloria')
         except:
-            pass
-            
-        # Limpiamos las regiones ingresadas para poder transcribirlas en las carpetas que se crearan despues.
-        regiones_modificadas = []
-        try:
-            for region in regiones:
-                region = region.replace( ' ', '_' )
-                region = region.replace( '"', '' )
-                if '.' in region:
-                    region = region.replace( '.', '' )
-                regiones_modificadas.append( region )
-            print( regiones_modificadas )
-            
-        except:
-            print( '\nno regiones modificadas\n' )   
-        
+            pass 
         
         # Creamos listas vacias para trabajar los loops.
 
@@ -442,7 +369,7 @@ def scraper_contraloria( anios, tipo_servicio, regiones, grupo_ejecucion ):
             }
             
             de = pd.DataFrame( datos_extraidos )
-            de.to_excel( f'scraper_contraloria/{ tipo_servicio }/{ grupo_ejecucion }_informacion.xlsx' )
+            de.to_excel( f'scraper_contraloria/{ tipo_servicio }/{ tipo_servicio }_{ grupo_ejecucion }_informacion.xlsx' )
             print( "\nDATOS EXTRAIDOS EN EXCEL\n" )
         except:
             print( "\nNO DATOS EXTRAIDOS EN EXCEL\n" )          
