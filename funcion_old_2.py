@@ -50,7 +50,7 @@ from openpyxl import Workbook
 ## FUNCTION
 # ---------
 
-def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
+def scraper_contraloria( anios, tipo_servicio, grupo ):
 
     try:
         service = Service( ChromeDriverManager().install( ) )
@@ -105,22 +105,20 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
             print( '\nmunicipios no encontrados\n' )
             
         
-        # Seleccionar modalidad
+        # Seleccionar Tipo de servicio
         try: 
             time.sleep( 2 )
-            busqueda_modalidad = wait.until( EC.element_to_be_clickable( ( By.XPATH, '//*[@id="aModalidad"]' ) ) ).\
-                                 click()
+            busqueda_tipo = wait.until( EC.element_to_be_clickable( ( By.XPATH, '//*[@id="aTipoServicio"]' ) ) ).\
+                            click()
 
-            # Tabla donde estan las modalidades
-            tabla_modalidad = driver.find_element( By.XPATH, '//*[@id="lblmenumodalidad"]' )
-            tabla_modalidad.find_element( By.XPATH, f".//label[contains(., { modalidad })]").\
+            # Tabla donde estan los tipos
+            tabla_tipo = driver.find_element( By.XPATH, '//*[@id="lblmenuservicio"]' )
+            tabla_tipo.find_element( By.XPATH, f".//label[contains(., { tipo_servicio })]").\
                        click()
-            print( modalidad )
+            print( tipo_servicio )
             
         except:
-            print( '\nmodalidad no encontrada\n' )     
-            
-            
+            print( '\ntipos no encontrados\n' )       
                         
        # Creamos Carpeta 'scraper_contraloria'.
         try:
@@ -232,55 +230,105 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
                         tipo_previo = '"SERVICIO CONTROL PREVIO"'
                         tipo_simultaneo = '"SERVICIO CONTROL SIMULTANEO"'
                         tipo_posterior = '"SERVICIO CONTROL POSTERIOR"'
+                        
+                        modalidades_posterior = [ '"ACCION OFICIO POSTERIOR"', '"AUDITORIA CUMPLIMIENTO"', '"AUDITORIA DESEMPEÑO"', 
+                                                  '"AUDITORIA FINANCIERA"',  '"SERVICIO DE CONTROL ESPECÍFICO A HECHOS CON PRESUNTA IRREGULARIDAD"' ]
+                        modalidades_simultaneo = [ '"ACCIÓN SIMULTÁNEA"', '"CONTROL CONCURRENTE"', '"ORIENTACIÓN DE OFICIO"',
+                                                   '"REPORTE DE AVANCE"', '"VISITA DE CONTROL"', '"VISITA PREVENTIVA"' ]
+                        modalidades_previo = [ '"ASOCIACIÓN PÚBLICO PRIVADA"', '"ENDEUDAMIENTO INTERNO O EXTERNO"', '"OBRAS POR IMPUESTOS"',
+                                                '"PRESTACIONES DE ADICIONALES DE OBRA"', '"PRESTACIONES DE ADICIONALES DE SUPERVISIÓN"' ]
 
-                        modalidades_posterior = ['"ACCION OFICIO POSTERIOR"', '"AUDITORIA CUMPLIMIENTO"', '"AUDITORIA DESEMPEÑO"',
-                                                 '"AUDITORIA FINANCIERA"', '"SERVICIO DE CONTROL ESPECÍFICO A HECHOS CON PRESUNTA IRREGULARIDAD"']
-                        modalidades_simultaneo = ['"ACCIÓN SIMULTÁNEA"', '"CONTROL CONCURRENTE"', '"ORIENTACIÓN DE OFICIO"',
-                                                  '"REPORTE DE AVANCE"', '"VISITA DE CONTROL"', '"VISITA PREVENTIVA"']
-                        modalidades_previo = ['"ASOCIACIÓN PÚBLICO PRIVADA"', '"ENDEUDAMIENTO INTERNO O EXTERNO"', '"OBRAS POR IMPUESTOS"',
-                                              '"PRESTACIONES DE ADICIONALES DE OBRA"', '"PRESTACIONES DE ADICIONALES DE SUPERVISIÓN"']
-
-                        if modalidad in modalidades_posterior:
+                        
+                        if tipo_servicio == '"SERVICIO CONTROL POSTERIOR"':
                             tipo = tipo_posterior
-                        elif modalidad in modalidades_simultaneo:
+                            tipo = tipo.replace( ' ', '_' ).replace( '"', '' )
+                            for modalidad in modalidades_posterior:
+                                modalidad = modalidad.replace('"', '').replace( ' ', '_' )
+                                modalidad = unidecode.unidecode( modalidad )
+                                if modalidad == mod_de_serv:
+                                    try:
+                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
+                                        os.makedirs( folder_path, exist_ok = True )
+
+                                        informe_path = os.path.join( folder_path, f'{ num_d_inf }-informe.pdf' )
+                                        resumen_path = os.path.join( folder_path, f'{ num_d_inf }-resumen.pdf' )
+
+                                        try:
+                                            response_informe = requests.get( link_d_i )
+                                            with open( informe_path, 'wb') as informe_file:
+                                                informe_file.write( response_informe.content )
+                                            print(f'\n{ num_d_inf }-informe.pdf' )
+
+                                            response_resumen = requests.get( link_d_f_d_r )
+                                            with open( resumen_path, 'wb' ) as resumen_file:
+                                                resumen_file.write( response_resumen.content )
+                                            print( f'{ num_d_inf }-resumen.pdf\n' )                                       
+                                        except:
+                                            print( f'No folder2-resumen.pdf' )                                               
+                                    except:
+                                        pass
+                                        print( '\n no subdirectorios por numero \n' )
+
+                        if tipo_servicio == '"SERVICIO CONTROL SIMULTANEO"':
                             tipo = tipo_simultaneo
-                        elif modalidad in modalidades_previo:
+                            tipo = tipo.replace( ' ', '_' ).replace( '"', '' )
+                            for modalidad in modalidades_simultaneo:   
+                                modalidad = modalidad.replace('"', '').replace( ' ', '_' )
+                                modalidad = unidecode.unidecode( modalidad )                                
+                                if modalidad == mod_de_serv:
+                                    try:
+                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
+                                        os.makedirs( folder_path, exist_ok = True )
+
+                                        informe_path = os.path.join( folder_path, f'{ num_d_inf }-informe.pdf' )
+                                        resumen_path = os.path.join( folder_path, f'{ num_d_inf }-resumen.pdf' )
+
+                                        try:
+                                            response_informe = requests.get( link_d_i )
+                                            with open( informe_path, 'wb') as informe_file:
+                                                informe_file.write( response_informe.content )
+                                            print(f'\n{ num_d_inf }-informe.pdf' )
+
+                                            response_resumen = requests.get( link_d_f_d_r )
+                                            with open( resumen_path, 'wb' ) as resumen_file:
+                                                resumen_file.write( response_resumen.content )
+                                            print( f'{ num_d_inf }-resumen.pdf\n' )                                       
+                                        except:
+                                            print( f'No folder2-resumen.pdf' )                                                 
+                                    except:
+                                        pass
+                                        print( '\n no subdirectorios por numero \n' )
+
+                        if tipo_servicio == '"SERVICIO CONTROL PREVIO"':
                             tipo = tipo_previo
-                        
-                        tipo = tipo.replace('"', '').replace( ' ', '_' )
-                        tipo = unidecode.unidecode( tipo )
-                        
-                        modalidad = modalidad.replace('"', '').replace( ' ', '_' )
-                        modalidad = unidecode.unidecode( modalidad )
-                        
-                        try:
+                            tipo = tipo.replace( ' ', '_' ).replace( '"', '' )
+                            for modalidad in modalidades_previo:
+                                modalidad = modalidad.replace('"', '').replace( ' ', '_' )
+                                modalidad = unidecode.unidecode( modalidad )                                
+                                if modalidad == mod_de_serv:
+                                    try:
+                                        folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
+                                        os.makedirs( folder_path, exist_ok = True )
+
+                                        informe_path = os.path.join( folder_path, f'{ num_d_inf }-informe.pdf' )
+                                        resumen_path = os.path.join( folder_path, f'{ num_d_inf }-resumen.pdf' )
+
+                                        try:
+                                            response_informe = requests.get( link_d_i )
+                                            with open( informe_path, 'wb') as informe_file:
+                                                informe_file.write( response_informe.content )
+                                            print(f'\n{ num_d_inf }-informe.pdf' )
+
+                                            response_resumen = requests.get( link_d_f_d_r )
+                                            with open( resumen_path, 'wb' ) as resumen_file:
+                                                resumen_file.write( response_resumen.content )
+                                            print( f'{ num_d_inf }-resumen.pdf\n' )                                       
+                                        except:
+                                            print( f'No folder2-resumen.pdf' )                                                
+                                    except:
+                                        pass
+                                        print( '\n no subdirectorios por numero \n' )
                             
-                            if grupo_path == True:
-                                folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
-                            else:
-                                folder_path = os.path.join( 'scraper_contraloria', tipo, modalidad, num_d_inf )
-                                
-                            os.makedirs( folder_path, exist_ok = True )
-
-                            informe_path = os.path.join( folder_path, f'{ num_d_inf }-informe.pdf' )
-                            resumen_path = os.path.join( folder_path, f'{ num_d_inf }-resumen.pdf' )
-
-                            try:
-                                response_informe = requests.get( link_d_i )
-                                with open( informe_path, 'wb') as informe_file:
-                                    informe_file.write( response_informe.content )
-                                print(f'\n{ num_d_inf }-informe.pdf' )
-
-                                response_resumen = requests.get( link_d_f_d_r )
-                                with open( resumen_path, 'wb' ) as resumen_file:
-                                    resumen_file.write( response_resumen.content )
-                                print( f'{ num_d_inf }-resumen.pdf\n' )                                       
-                            except:
-                                print( f'No folder2-resumen.pdf' )                                               
-                        except:
-                            pass
-                            print( '\n no subdirectorios por numero \n' )
-                           
                     except:
                         print( '\n No subcarpetas por tipo de servicio \n' )                       
                         
@@ -303,7 +351,8 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
         # Guardar datos extraídos en un archivo Excel
         try: 
             
-               
+            tipo_servicio = tipo_servicio.replace( ' ', '_' ).replace( '"', '' )
+                
             datos_extraidos = {
             'Region': regions,
             'Modalidad': modalidad_de_servicio,
@@ -322,12 +371,7 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
             }
             
             de = pd.DataFrame( datos_extraidos )
-            
-            if grupo_path == True:
-                de.to_excel( f'scraper_contraloria/{ tipo }/{ modalidad }_{ grupo }_informacion.xlsx' )
-            else:
-                de.to_excel( f'scraper_contraloria/{ tipo }/{ modalidad }_informacion.xlsx' )
-                
+            de.to_excel( f'scraper_contraloria/{ tipo_servicio }/{ tipo_servicio }_{ grupo }_informacion.xlsx' )
             print( "\nDATOS EXTRAIDOS EN EXCEL\n" )
         except:
             print( "\nNO DATOS EXTRAIDOS EN EXCEL\n" )          
