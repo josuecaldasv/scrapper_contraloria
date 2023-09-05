@@ -7,10 +7,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 
-# For scraping
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-
 # Options driver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
@@ -53,12 +49,19 @@ from openpyxl import Workbook
 def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
 
     try:
-        service = Service( ChromeDriverManager().install( ) )
-        driver = webdriver.Chrome( service = service )
-        driver.maximize_window()
-
-        url = f'https://appbp.contraloria.gob.pe/BuscadorCGR/Informes/Avanzado.html'
+        
+        # options = Options()
+        # service = Service()
+        driver  = webdriver.Chrome()        
+        url     = f'https://appbp.contraloria.gob.pe/BuscadorCGR/Informes/Avanzado.html'
         driver.get( url )
+        
+#         service = Service( ChromeDriverManager().install( ) )
+#         driver  = webdriver.Chrome( service = service )
+#         driver.maximize_window()
+
+#         url = f'https://appbp.contraloria.gob.pe/BuscadorCGR/Informes/Avanzado.html'
+#         driver.get( url )
         
         wait = WebDriverWait( driver, 60 )
               
@@ -74,7 +77,7 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
                 for anio in anios:
                     time.sleep( 2 )
                     tabla_anios.location_once_scrolled_into_view
-                    tabla_anios.find_element( By.XPATH, f".//label[contains(., { anio })]").click() 
+                    tabla_anios.find_element( By.XPATH, f".//label[contains(., { anio })]" ).click() 
                     print( anio )
             except:
                 ( '\nno año\n' )                    
@@ -90,13 +93,13 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
             # tabla donde estan los sectores
             tabla_sectores = driver.find_element( By.XPATH, '//*[@id="lblmenusector"]' )
 
-            sectores = ['"MUNICIPALIDADES DISTRITALES"', '"MUNICIPALIDADES PROVINCIALES"']
+            sectores = [ '"MUNICIPALIDADES DISTRITALES"', '"MUNICIPALIDADES PROVINCIALES"' ]
             
             try:
                 for sec in sectores:
                     time.sleep(2)
                     tabla_sectores.location_once_scrolled_into_view
-                    tabla_sectores.find_element( By.XPATH, f".//label[contains(., { sec } ) ]").click()
+                    tabla_sectores.find_element( By.XPATH, f".//label[contains(., { sec } ) ]" ).click()
                     print( sec )
             except:
                 print( '\nno municipios\n' )
@@ -113,8 +116,8 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
 
             # Tabla donde estan las modalidades
             tabla_modalidad = driver.find_element( By.XPATH, '//*[@id="lblmenumodalidad"]' )
-            tabla_modalidad.find_element( By.XPATH, f".//label[contains(., { modalidad })]").\
-                       click()
+            tabla_modalidad.find_element( By.XPATH, f".//label[contains(., { modalidad })]" ).\
+                            click()
             print( modalidad )
             
         except:
@@ -122,9 +125,9 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
             
             
                         
-       # Creamos Carpeta 'scraper_contraloria'.
+       # Creamos Carpeta 'datos_extraidos' para guardar la informacion extraida
         try:
-            os.mkdir('scraper_contraloria')
+            os.mkdir( 'datos_extraidos' )
         except:
             pass
         
@@ -214,10 +217,10 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
                     link_de_informe                                +=     link_d_i2                            
                     
                     
-                    # Modificar los nobmres y números para quitar elementos extraños
+                    # Modificar los nombres y números para quitar elementos extraños
                     try: 
-                        mod_de_serv = mod_de_serv.strip().replace( ' ', '_' ).replace( '"', '' )
-                        mod_de_serv = unidecode.unidecode( mod_de_serv )
+                        # mod_de_serv = mod_de_serv.strip().replace( ' ', '_' ).replace( '"', '' )
+                        # mod_de_serv = unidecode.unidecode( mod_de_serv )
                         num_d_inf   = num_d_inf.strip().replace( '/', '_' ).replace( '\\', '_' )
                         # print( f"Modalidad de servicio: { mod_de_serv }" )
                         # print( f"Número de Informe: { num_d_inf }" )
@@ -229,16 +232,16 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
                     # Creamos las carpetas donde se ubicarán los pdf.
 
                     try:
-                        tipo_previo = '"SERVICIO CONTROL PREVIO"'
+                        tipo_previo     = '"SERVICIO CONTROL PREVIO"'
                         tipo_simultaneo = '"SERVICIO CONTROL SIMULTANEO"'
-                        tipo_posterior = '"SERVICIO CONTROL POSTERIOR"'
+                        tipo_posterior  = '"SERVICIO CONTROL POSTERIOR"'
 
-                        modalidades_posterior = ['"ACCION OFICIO POSTERIOR"', '"AUDITORIA CUMPLIMIENTO"', '"AUDITORIA DESEMPEÑO"',
-                                                 '"AUDITORIA FINANCIERA"', '"SERVICIO DE CONTROL ESPECÍFICO A HECHOS CON PRESUNTA IRREGULARIDAD"']
-                        modalidades_simultaneo = ['"ACCIÓN SIMULTÁNEA"', '"CONTROL CONCURRENTE"', '"ORIENTACIÓN DE OFICIO"',
-                                                  '"REPORTE DE AVANCE"', '"VISITA DE CONTROL"', '"VISITA PREVENTIVA"']
-                        modalidades_previo = ['"ASOCIACIÓN PÚBLICO PRIVADA"', '"ENDEUDAMIENTO INTERNO O EXTERNO"', '"OBRAS POR IMPUESTOS"',
-                                              '"PRESTACIONES DE ADICIONALES DE OBRA"', '"PRESTACIONES DE ADICIONALES DE SUPERVISIÓN"']
+                        modalidades_posterior  = [ '"ACCION OFICIO POSTERIOR"', '"AUDITORIA CUMPLIMIENTO"', '"AUDITORIA DESEMPEÑO"',
+                                                   '"AUDITORIA FINANCIERA"', '"SERVICIO DE CONTROL ESPECÍFICO A HECHOS CON PRESUNTA IRREGULARIDAD"']
+                        modalidades_simultaneo = [ '"ACCIÓN SIMULTÁNEA"', '"CONTROL CONCURRENTE"', '"ORIENTACIÓN DE OFICIO"',
+                                                   '"REPORTE DE AVANCE"', '"VISITA DE CONTROL"', '"VISITA PREVENTIVA"']
+                        modalidades_previo     = [ '"ASOCIACIÓN PÚBLICO PRIVADA"', '"ENDEUDAMIENTO INTERNO O EXTERNO"', '"OBRAS POR IMPUESTOS"',
+                                                   '"PRESTACIONES DE ADICIONALES DE OBRA"', '"PRESTACIONES DE ADICIONALES DE SUPERVISIÓN"']
 
                         if modalidad in modalidades_posterior:
                             tipo = tipo_posterior
@@ -247,18 +250,18 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
                         elif modalidad in modalidades_previo:
                             tipo = tipo_previo
                         
-                        tipo = tipo.replace('"', '').replace( ' ', '_' )
+                        tipo = tipo.replace( '"', '' ).replace( ' ', '_' )
                         tipo = unidecode.unidecode( tipo )
                         
-                        modalidad = modalidad.replace('"', '').replace( ' ', '_' )
+                        modalidad = modalidad.replace( '"', '' ).replace( ' ', '_' )
                         modalidad = unidecode.unidecode( modalidad )
                         
                         try:
                             
                             if grupo_path == True:
-                                folder_path = os.path.join( 'scraper_contraloria', tipo, grupo, modalidad, num_d_inf )
+                                folder_path = os.path.join( 'datos_extraidos', tipo, grupo, modalidad, num_d_inf )
                             else:
-                                folder_path = os.path.join( 'scraper_contraloria', tipo, modalidad, num_d_inf )
+                                folder_path = os.path.join( 'datos_extraidos', tipo, modalidad, num_d_inf )
                                 
                             os.makedirs( folder_path, exist_ok = True )
 
@@ -294,17 +297,18 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
                         wait.until( EC.staleness_of( driver.find_element( By.XPATH, f'//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[{ x }]/td[1]' ) ) )
                         wait.until( EC.presence_of_element_located( ( By.XPATH, f'//*[@id="tablaResultadosUltimosInformes"]/tbody/tr[1]/td[1]' ) ) )
                         print( f"SE AVANZA A LA PÁGINA { i + 1 }" )
+                        
                 except:
                     print( "NO SE AVANZA A LA SIGUIENTE PÁGINA" )           
                   
         except:
             print( '0 documentos encontrados' )    
             
-        # Guardar datos extraídos en un archivo Excel
+        # Guardar información sobre los datos extraídos en un archivo Excel
         try: 
-            
                
             datos_extraidos = {
+                
             'Region': regions,
             'Modalidad': modalidad_de_servicio,
             'Número de informe': num_de_inf,
@@ -319,16 +323,18 @@ def scraper_contraloria( anios, modalidad, grupo_path = False, grupo = None ):
             'Fecha de Publicacion': fecha_de_publicacion,
             'Enlace de Resumen': link_de_ficha_de_resumen,
             'Enlace de Informe': link_de_informe
+                
             }
             
             de = pd.DataFrame( datos_extraidos )
             
             if grupo_path == True:
-                de.to_excel( f'scraper_contraloria/{ tipo }/{ modalidad }_{ grupo }_informacion.xlsx' )
+                de.to_excel( f'datos_extraidos/{ tipo }/{ modalidad }_{ grupo }_informacion.xlsx' )
             else:
-                de.to_excel( f'scraper_contraloria/{ tipo }/{ modalidad }_informacion.xlsx' )
+                de.to_excel( f'datos_extraidos/{ tipo }/{ modalidad }_informacion.xlsx' )
                 
             print( "\nDATOS EXTRAIDOS EN EXCEL\n" )
+            
         except:
             print( "\nNO DATOS EXTRAIDOS EN EXCEL\n" )          
                     
